@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>JavaQuiz</h1>
-<h2 th:if="${session}!=null)">Witaj <span  th:text="${session.login}"></span></h2>
+<h2 th:if="${session!=null}">Witaj <span  th:text="${session.login}"></span></h2>
 <a href="/">Strona główna</a>
 <span th:if="${session.logged_in==null}">
 <a href="/rejestracja">Rejestracja</a>
