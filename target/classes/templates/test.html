@@ -8,6 +8,11 @@
     {
     max-height:300px;
     }
+    ul
+    {
+    list-style-type: none;
+    }
+    a {border-right:3px solid black;}
   </style>
 </head>
 <body>
@@ -23,15 +28,16 @@
 </span>
 <span th:if="${session.logged_in!=null}">
     <a href="/test">Test</a>
+    <a href="/wyniki">Wyniki</a>
     <a href="/wyloguj">Wyloguj</a>
 </span>
 
-
+<br/><br/><br/>
 <form action="wynik" method="post">
   <input type="hidden" name="n_pytan" th:value="${pytania.size()}"/>
 <table>
 <tr th:each="pytanie: ${pytania}">
-  <td>
+  <td style="width:600px;">
   <input type="hidden" th:name="'nrpytania'+${pytanie.numer}" th:value="${pytanie.id}"/>
   <span th:text="${pytanie.tresc}"></span>
   <ul th:each="odpowiedz: ${pytanie.odpowiedzi}">

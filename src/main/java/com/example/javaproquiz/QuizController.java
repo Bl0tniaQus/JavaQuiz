@@ -7,16 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.ui.Model;
-
 import java.util.*;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.view.RedirectView;
-
 import java.io.IOException;
-import java.sql.*;
+
 
 @Controller
 public class QuizController {
@@ -49,7 +43,7 @@ public class QuizController {
     @GetMapping("/dodaj")
     public String dodaj(HttpServletRequest request)
     {
-        if ((request.getSession().getAttribute("logged_in")==null) || (request.getSession().getAttribute("logged_in")==null))
+        if ((request.getSession().getAttribute("logged_in")==null) || (request.getSession().getAttribute("czy_admin")==null))
         {
             return "redirect:/";
         }
@@ -131,7 +125,7 @@ public class QuizController {
     @PostMapping("dodajaction")
     public String dodajaction(HttpServletRequest request, @RequestParam("plik") MultipartFile file) throws IOException
     {
-        if ((request.getSession().getAttribute("logged_in")==null) || (request.getSession().getAttribute("logged_in")==null))
+        if ((request.getSession().getAttribute("logged_in")==null) || (request.getSession().getAttribute("czy_admin")==null))
         {
             return "redirect:/";
         }
@@ -173,7 +167,7 @@ public class QuizController {
         {
             return "redirect:/";
         }
-        int n_pytan = 4;
+        int n_pytan = 5;
 
         ArrayList<Pytanie> pytania = new ArrayList<Pytanie>();
         SqlRowSet result = jdbcTemplate.queryForRowSet("SELECT * from pytanie");
@@ -201,11 +195,13 @@ public class QuizController {
         }
         Collections.shuffle(pytania);
         if (pytania.size()<n_pytan) {n_pytan=pytania.size();}
+        ArrayList<Pytanie> testowe = new ArrayList<Pytanie>();
         for (int j=1;j<=n_pytan;j++)
         {
             pytania.get(j-1).numer = j;
+            testowe.add(pytania.get(j-1));
         }
-        model.addAttribute("pytania",pytania);
+        model.addAttribute("pytania",testowe);
         return "test";
     }
     @PostMapping("/wynik")
@@ -236,13 +232,16 @@ public class QuizController {
             if (pomylki==0) {punkty++;}
 
         }
+        int userid = Integer.parseInt(request.getSession().getAttribute("id_uzytkownika").toString());
+        jdbcTemplate.update("insert into wynik values (default, ?, ?, ?, CURRENT_TIMESTAMP)",userid,punkty,n_pytan);
+
         model.addAttribute("punkty",punkty);
         model.addAttribute("n_pytan",n_pytan);
         return "wynik";
     }
     @GetMapping("/lista")
         public String lista(Model model, HttpServletRequest request) {
-        if ((request.getSession().getAttribute("logged_in") == null) || (request.getSession().getAttribute("logged_in") == null)) {
+        if ((request.getSession().getAttribute("logged_in") == null) || (request.getSession().getAttribute("czy_admin") == null)) {
             return "redirect:/";
         }
         ArrayList<Pytanie> pytania = new ArrayList<Pytanie>();
@@ -272,7 +271,7 @@ public class QuizController {
     @PostMapping("/usun")
     public String usun(HttpServletRequest request)
     {
-        if ((request.getSession().getAttribute("logged_in") == null) || (request.getSession().getAttribute("logged_in") == null)) {
+        if ((request.getSession().getAttribute("logged_in") == null) || (request.getSession().getAttribute("czy_admin") == null)) {
             return "redirect:/";
         }
         if (request.getParameter("usun")!=null)
@@ -318,7 +317,7 @@ public class QuizController {
     @PostMapping("/modyfikujaction")
     public String Modyfikujaction(HttpServletRequest request, @RequestParam("plik") MultipartFile file) throws IOException
     {
-        if (((request.getSession().getAttribute("logged_in") == null) || (request.getSession().getAttribute("logged_in") == null)) && (request.getParameter("modyfikuj")!=null))
+        if (((request.getSession().getAttribute("logged_in") == null) || (request.getSession().getAttribute("czy_admin") == null)) && (request.getParameter("modyfikuj")!=null))
         {
             return "redirect:/";
         }
@@ -360,5 +359,35 @@ public class QuizController {
             }
 
         return "redirect:/lista";
+    }
+    @GetMapping("/wyniki")
+    public String wyniki(Model model, HttpServletRequest request)
+    {
+        if (request.getSession().getAttribute("logged_in")==null)
+        {
+            return "redirect:/";
+        }
+        ArrayList<Wynik> wyniki = new ArrayList<Wynik>();
+        SqlRowSet result;
+        if (request.getSession().getAttribute("czy_admin")==null)
+        {
+
+            result = jdbcTemplate.queryForRowSet("SELECT uzytkownik.numer_indeksu, wynik,pytania,czas from wynik inner join uzytkownik on uzytkownik.id_uzytkownika = wynik.wynik_id_uzytkownika where wynik.wynik_id_uzytkownika = ? order by czas desc", request.getSession().getAttribute("id_uzytkownika"));
+        }
+        else
+        {
+            result = jdbcTemplate.queryForRowSet("SELECT uzytkownik.numer_indeksu, wynik,pytania,czas from wynik inner join uzytkownik on uzytkownik.id_uzytkownika = wynik.wynik_id_uzytkownika order by czas desc");
+        }
+        while (result.next()) {
+            Wynik wyn = new Wynik();
+            wyn.indeks = result.getString("numer_indeksu");
+            wyn.punkty = result.getInt("wynik");
+            wyn.max = result.getInt("pytania");
+            wyn.data = result.getDate("czas");
+            wyn.czas = result.getTime("czas");
+            wyniki.add(wyn);
+        }
+        model.addAttribute("wyniki", wyniki);
+        return "wyniki";
     }
 }

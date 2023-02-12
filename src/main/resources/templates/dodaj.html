@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Java Quiz</title>
+    <style>
+        a {border-right:3px solid black;}
+    </style>
 </head>
 <body>
 <h1>Dodaj pytanie</h1>
@@ -17,10 +20,11 @@
 </span>
 <span th:if="${session.logged_in!=null}">
     <a href="/test">Test</a>
+    <a href="/wyniki">Wyniki</a>
     <a href="/wyloguj">Wyloguj</a>
 </span>
 
-
+<br/>
 <form action="dodajaction" method="post" enctype="multipart/form-data">
   Treść: <input type="text" name="pytanie" required/><br />
   Grafika: <input type="file" name="plik" />

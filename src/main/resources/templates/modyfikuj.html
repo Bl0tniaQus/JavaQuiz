@@ -8,6 +8,8 @@
     {
     max-height:300px;
     }
+    a {border-right:3px solid black;}
+
   </style>
 </head>
 <body>
@@ -23,9 +25,10 @@
 </span>
 <span th:if="${session.logged_in!=null}">
     <a href="/test">Test</a>
+    <a href="/wyniki">Wyniki</a>
     <a href="/wyloguj">Wyloguj</a>
 </span>
-
+<br/>
 
 <form action="modyfikujaction" method="post" enctype="multipart/form-data">
   <table>
