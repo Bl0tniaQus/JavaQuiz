@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Java Quiz</title>
+    <style>
+    img
+    {
+    max-height:300px;
+    }
+  </style>
+</head>
+<body>
+<h1>Edytuj pytanie</h1>
+<a href="/">Strona główna</a>
+<span th:if="${session.logged_in==null}">
+<a href="/rejestracja">Rejestracja</a>
+<a href="/logowanie">Logowanie</a>
+</span>
+<span th:if="${session.czy_admin!=null}">
+    <a href="/lista">Lista pytań</a>
+    <a href="/dodaj">Dodaj pytanie</a>
+</span>
+<span th:if="${session.logged_in!=null}">
+    <a href="/test">Test</a>
+    <a href="/wyloguj">Wyloguj</a>
+</span>
+
+
+<form action="modyfikujaction" method="post" enctype="multipart/form-data">
+  <table>
+    <tr>
+      <td>
+        Treść: <input type="text" name="pytanie" th:value="${pytanie.tresc}"required/><br />
+        Grafika: <input type="file" name="plik" />
+          <span th:if="${pytanie.img}!=''">Usunąć grafikę? <input type="checkbox" name="usunobraz"></span>
+      </td>
+      <td>
+        <span th:if="${pytanie.img}!=''"><img th:src="'data:image/png;base64, '+${pytanie.img}"/></span>
+      </td>
+    </tr>
+
+  </table>
+
+  <input type="hidden" name="n_odp" th:value="${pytanie.odpowiedzi.size()}" id="n_odp">
+  <input type="hidden" name="id_pyt" th:value="${pytanie.id}" id="id_pyt">
+  <ul id="odpowiedzi">
+      <li th:each="odpowiedz: ${pytanie.odpowiedzi}">
+        <input class="odp" type="text" th:name="'odp-'+${odpowiedz.nr_odp}" th:id="'odp-'+${odpowiedz.nr_odp}" th:value="${odpowiedz.tresc}"/>
+
+        <span th:if="${odpowiedz.poprawnosc}=='true'"><input type="checkbox" th:name="'popr-'+${odpowiedz.nr_odp}" th:id="'popr-'+${odpowiedz.nr_odp}" checked/></span>
+        <span th:if="${odpowiedz.poprawnosc}=='false'"><input type="checkbox"th:name="'popr-'+${odpowiedz.nr_odp}" th:id="'popr-'+${odpowiedz.nr_odp}"/></span>
+      </li>
+  </ul>
+  <button type="button" id="dodajodp">Dodaj odpowiedź</button><br /><br />
+
+    <a href="/lista"><button type="button">Anuluj</button></a> <button type="submit" name="register" th:value="Modyfikuj">Edytuj</button>
+
+</form>
+
+
+</body>
+</html>
+
+<script>
+  var odpowiedzi = parseInt(document.querySelector("#n_odp").getAttribute("value"));
+  var odpowiedzi_ul = document.querySelector("#odpowiedzi");
+  function DodajOdp()
+  {
+    odpowiedzi=odpowiedzi+1;
+    let odp = "odp-"+(odpowiedzi)
+    let popr = "popr-"+(odpowiedzi)
+
+
+    let li = document.createElement("li");
+    li.innerHTML = `<input type="text" class = "odp" name="${odp}" id="${odp}"/> <input type="checkbox" name="${popr}" id="${popr}"/>`;
+    odpowiedzi_ul.appendChild(li);
+    document.querySelector("#n_odp").setAttribute("value", odpowiedzi)
+  }
+  document.querySelector("#dodajodp").onclick = DodajOdp;
+</script>

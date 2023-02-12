@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Java Quiz</title>
+</head>
+<body>
+<h1>Dodaj pytanie</h1>
+<a href="/">Strona główna</a>
+<span th:if="${session.logged_in==null}">
+<a href="/rejestracja">Rejestracja</a>
+<a href="/logowanie">Logowanie</a>
+</span>
+<span th:if="${session.czy_admin!=null}">
+    <a href="/lista">Lista pytań</a>
+    <a href="/dodaj">Dodaj pytanie</a>
+</span>
+<span th:if="${session.logged_in!=null}">
+    <a href="/test">Test</a>
+    <a href="/wyloguj">Wyloguj</a>
+</span>
+
+
+<form action="dodajaction" method="post" enctype="multipart/form-data">
+  Treść: <input type="text" name="pytanie" required/><br />
+  Grafika: <input type="file" name="plik" />
+    <input type="hidden" name="n_odp" value="2" id="n_odp">
+    <ul id="odpowiedzi">
+      <li><input class="odp" type="text" name="odp-1" id="odp-1" required/> <input type="checkbox" name="popr-1" id="popr-1"></li>
+      <li><input class="odp" type="text" name="odp-2" id="odp-2" required/> <input type="checkbox" name="popr-2" id="popr-2"></li>
+    </ul>
+    <button type="button" id="dodajodp">Dodaj odpowiedź</button>
+
+  <button type="submit" name="register" value="register">Dodaj pytanie</button>
+
+</form>
+
+
+</body>
+</html>
+
+<script>
+  var odpowiedzi = 2;
+  var odpowiedzi_ul = document.querySelector("#odpowiedzi");
+  function DodajOdp()
+  {
+    odpowiedzi=odpowiedzi+1;
+    let odp = "odp-"+(odpowiedzi)
+    let popr = "popr-"+(odpowiedzi)
+
+
+    let li = document.createElement("li");
+    li.innerHTML = `<input type="text" class = "odp" name="${odp}" id="${odp}"/> <input type="checkbox" name="${popr}" id="${popr}"/>`;
+    odpowiedzi_ul.appendChild(li);
+    document.querySelector("#n_odp").setAttribute("value", odpowiedzi)
+  }
+  document.querySelector("#dodajodp").onclick = DodajOdp;
+</script>

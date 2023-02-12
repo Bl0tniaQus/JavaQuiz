@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Koniec testu</h1>
+<a href="/">Strona główna</a>
+<span th:if="${session.logged_in==null}">
+<a href="/rejestracja">Rejestracja</a>
+<a href="/logowanie">Logowanie</a>
+</span>
+<span th:if="${session.czy_admin!=null}">
+    <a href="/lista">Lista pytań</a>
+    <a href="/dodaj">Dodaj pytanie</a>
+</span>
+<span th:if="${session.logged_in!=null}">
+    <a href="/test">Test</a>
+    <a href="/wyloguj">Wyloguj</a>
+</span>
+<p>Twój wynik to: <span th:text="${punkty}"></span> punkty na <span th:text="${n_pytan}"> możliwych do uzyskania</span></p>
+
+</body>
+</html>
